@@ -5,6 +5,7 @@ import { Dashboard } from "@/components/Dashboard";
 import { MintRedeem } from "@/components/MintRedeem";
 import { ZapIn } from "@/components/ZapIn";
 import { NetworkGuard } from "@/components/NetworkGuard";
+import { Faucet } from "@/components/Faucet";
 import { useAccount } from "wagmi";
 
 export default function Home() {
@@ -42,6 +43,9 @@ export default function Home() {
             <div className="space-y-8">
               {/* Dashboard */}
               <Dashboard />
+
+              {/* Testnet Faucet */}
+              <Faucet />
 
               {/* Action Cards */}
               <div className="grid md:grid-cols-2 gap-6">
