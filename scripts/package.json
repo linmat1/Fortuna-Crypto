@@ -1,0 +1,14 @@
+{
+  "name": "fortuna-scripts",
+  "version": "1.0.0",
+  "description": "Scripts for interacting with Fortuna Crypto Index",
+  "type": "module",
+  "scripts": {
+    "zap": "node zapIn.js",
+    "quote": "node getQuote.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "ethers": "^6.9.0"
+  }
+}
