@@ -22,6 +22,13 @@ const MOCK_ERC20_ABI = [
   },
 ] as const;
 
+const FAUCET_OPTIONS = [
+  { token: "usdc" as const, label: "1,000 USDC", amount: "1000", decimals: 6, color: "emerald" },
+  { token: "weth" as const, label: "1 WETH", amount: "1", decimals: 18, color: "blue" },
+  { token: "wbtc" as const, label: "0.1 WBTC", amount: "0.1", decimals: 8, color: "amber" },
+  { token: "link" as const, label: "10 LINK", amount: "10", decimals: 18, color: "violet" },
+];
+
 export function Faucet() {
   const { address, isConnected } = useAccount();
   const [mintingToken, setMintingToken] = useState<string | null>(null);
@@ -45,7 +52,6 @@ export function Faucet() {
       wbtc: CONTRACTS.wbtc,
       link: CONTRACTS.link,
     }[token];
-
     writeContract({
       address: tokenAddress,
       abi: MOCK_ERC20_ABI,
@@ -57,84 +63,58 @@ export function Faucet() {
   const isLoading = isPending || isConfirming;
 
   return (
-    <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-600/50 rounded-xl p-6">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-2xl">🚰</span>
-        <h2 className="text-xl font-bold">Testnet Faucet</h2>
+    <div
+      className="rounded-2xl border p-6"
+      style={{
+        background: "var(--bg-card)",
+        borderColor: "var(--border)",
+        boxShadow: "var(--shadow)",
+      }}
+    >
+      <div className="mb-1 flex items-center gap-2">
+        <span className="text-lg">🚰</span>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--text-dim)]">
+          Testnet faucet
+        </h3>
       </div>
-      <p className="text-gray-400 text-sm mb-4">
-        Get free test tokens to try out the protocol
+      <p className="mb-4 text-sm text-[var(--text-muted)]">
+        Get free test tokens to try the protocol
       </p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <FaucetButton
-          label="1,000 USDC"
-          color="bg-green-600 hover:bg-green-700"
-          onClick={() => mintToken("usdc", "1000", 6)}
-          isLoading={isLoading && mintingToken === "usdc"}
-          disabled={isLoading}
-        />
-        <FaucetButton
-          label="1 WETH"
-          color="bg-blue-600 hover:bg-blue-700"
-          onClick={() => mintToken("weth", "1", 18)}
-          isLoading={isLoading && mintingToken === "weth"}
-          disabled={isLoading}
-        />
-        <FaucetButton
-          label="0.1 WBTC"
-          color="bg-orange-600 hover:bg-orange-700"
-          onClick={() => mintToken("wbtc", "0.1", 8)}
-          isLoading={isLoading && mintingToken === "wbtc"}
-          disabled={isLoading}
-        />
-        <FaucetButton
-          label="10 LINK"
-          color="bg-purple-600 hover:bg-purple-700"
-          onClick={() => mintToken("link", "10", 18)}
-          isLoading={isLoading && mintingToken === "link"}
-          disabled={isLoading}
-        />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {FAUCET_OPTIONS.map((opt) => (
+          <button
+            key={opt.token}
+            onClick={() => mintToken(opt.token, opt.amount, opt.decimals)}
+            disabled={isLoading}
+            className="rounded-xl border border-[var(--border)] px-4 py-3 text-sm font-medium text-[var(--text)] transition hover:bg-white/5 disabled:opacity-50"
+            style={{ background: "var(--bg-elevated)" }}
+          >
+            {isLoading && mintingToken === opt.token ? "Minting…" : `Get ${opt.label}`}
+          </button>
+        ))}
       </div>
 
       {isSuccess && (
-        <div className="mt-4 p-3 bg-green-900/50 border border-green-600 rounded-lg text-green-400 text-sm flex items-center justify-between">
-          <span>✓ Tokens minted successfully!</span>
+        <div
+          className="mt-4 flex items-center justify-between rounded-xl border p-3"
+          style={{
+            background: "var(--success-muted)",
+            borderColor: "rgba(16, 185, 129, 0.3)",
+          }}
+        >
+          <span className="text-sm font-medium text-emerald-400">✓ Tokens minted</span>
           <button
             onClick={() => {
               reset();
               setMintingToken(null);
             }}
-            className="text-xs bg-green-800 hover:bg-green-700 px-2 py-1 rounded"
+            className="rounded-lg px-2 py-1 text-xs font-medium text-[var(--text-muted)] hover:bg-white/5"
           >
             Dismiss
           </button>
         </div>
       )}
     </div>
-  );
-}
-
-function FaucetButton({
-  label,
-  color,
-  onClick,
-  isLoading,
-  disabled,
-}: {
-  label: string;
-  color: string;
-  onClick: () => void;
-  isLoading: boolean;
-  disabled: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`${color} disabled:bg-gray-600 py-3 px-4 rounded-lg font-medium transition-colors text-sm`}
-    >
-      {isLoading ? "Minting..." : `Get ${label}`}
-    </button>
   );
 }

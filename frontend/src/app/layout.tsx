@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Syne } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
@@ -13,9 +13,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+});
+
 export const metadata: Metadata = {
   title: "Fortuna Crypto | Index Fund",
-  description: "Decentralized crypto index fund on Base",
+  description: "Diversified crypto exposure in one token. On Base.",
 };
 
 export default function RootLayout({
@@ -24,9 +30,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-white min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} antialiased min-h-screen text-[var(--text)]`}
+        style={{ background: "var(--bg)" }}
       >
         <Providers>{children}</Providers>
       </body>

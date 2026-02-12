@@ -19,25 +19,45 @@ export function MintRedeem() {
   if (!isConnected) return null;
 
   return (
-    <div className="bg-gray-800 rounded-xl p-6">
-      <div className="flex gap-2 mb-6">
+    <div
+      className="rounded-2xl border p-6"
+      style={{
+        background: "var(--bg-card)",
+        borderColor: "var(--border)",
+        boxShadow: "var(--shadow)",
+      }}
+    >
+      <h3 className="mb-1 text-sm font-semibold uppercase tracking-wider text-[var(--text-dim)]">
+        Mint & Redeem
+      </h3>
+      <p className="mb-5 text-sm text-[var(--text-muted)]">
+        Deposit basket or burn FCI for underlying assets
+      </p>
+      <div
+        className="mb-5 flex gap-1 rounded-xl p-1"
+        style={{ background: "var(--bg-elevated)" }}
+      >
         <button
+          type="button"
           onClick={() => setTab("mint")}
-          className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
+          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition ${
             tab === "mint"
-              ? "bg-green-600 text-white"
-              : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+              ? "text-black"
+              : "text-[var(--text-muted)] hover:text-[var(--text)]"
           }`}
+          style={tab === "mint" ? { background: "var(--success)" } : undefined}
         >
           Mint
         </button>
         <button
+          type="button"
           onClick={() => setTab("redeem")}
-          className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
+          className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition ${
             tab === "redeem"
-              ? "bg-red-600 text-white"
-              : "bg-gray-700 text-gray-400 hover:bg-gray-600"
+              ? "text-black"
+              : "text-[var(--text-muted)] hover:text-[var(--text)]"
           }`}
+          style={tab === "redeem" ? { background: "#f87171" } : undefined}
         >
           Redeem
         </button>
@@ -58,21 +78,18 @@ function MintForm() {
     hash,
   });
 
-  // Check allowances
   const { data: wethAllowance } = useReadContract({
     address: CONTRACTS.weth,
     abi: ERC20_ABI,
     functionName: "allowance",
     args: [address!, CONTRACTS.indexVault],
   });
-
   const { data: wbtcAllowance } = useReadContract({
     address: CONTRACTS.wbtc,
     abi: ERC20_ABI,
     functionName: "allowance",
     args: [address!, CONTRACTS.indexVault],
   });
-
   const { data: linkAllowance } = useReadContract({
     address: CONTRACTS.link,
     abi: ERC20_ABI,
@@ -84,7 +101,6 @@ function MintForm() {
     const wethAmount = amounts.weth ? parseUnits(amounts.weth, 18) : 0n;
     const wbtcAmount = amounts.wbtc ? parseUnits(amounts.wbtc, 8) : 0n;
     const linkAmount = amounts.link ? parseUnits(amounts.link, 18) : 0n;
-
     return (
       (wethAmount > 0n && (!wethAllowance || wethAllowance < wethAmount)) ||
       (wbtcAmount > 0n && (!wbtcAllowance || wbtcAllowance < wbtcAmount)) ||
@@ -98,10 +114,8 @@ function MintForm() {
       const maxApproval = BigInt(
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       );
-
-      // Approve WETH
       if (amounts.weth && (!wethAllowance || wethAllowance < parseUnits(amounts.weth, 18))) {
-        writeContract({
+        await writeContract({
           address: CONTRACTS.weth,
           abi: ERC20_ABI,
           functionName: "approve",
@@ -119,7 +133,6 @@ function MintForm() {
       amounts.wbtc ? parseUnits(amounts.wbtc, 8) : 0n,
       amounts.link ? parseUnits(amounts.link, 18) : 0n,
     ];
-
     writeContract({
       address: CONTRACTS.indexVault,
       abi: INDEX_VAULT_ABI,
@@ -130,8 +143,8 @@ function MintForm() {
 
   return (
     <div className="space-y-4">
-      <p className="text-gray-400 text-sm">
-        Deposit tokens to mint index shares. All three tokens are required in proportion.
+      <p className="text-sm text-[var(--text-muted)]">
+        Deposit WETH, WBTC, and LINK in proportion to mint FCI.
       </p>
 
       <div className="space-y-3">
@@ -139,43 +152,50 @@ function MintForm() {
           label="WETH"
           value={amounts.weth}
           onChange={(v) => setAmounts({ ...amounts, weth: v })}
-          decimals={18}
         />
         <TokenInput
           label="WBTC"
           value={amounts.wbtc}
           onChange={(v) => setAmounts({ ...amounts, wbtc: v })}
-          decimals={8}
         />
         <TokenInput
           label="LINK"
           value={amounts.link}
           onChange={(v) => setAmounts({ ...amounts, link: v })}
-          decimals={18}
         />
       </div>
 
       {needsApproval() ? (
         <button
+          type="button"
           onClick={approveAll}
           disabled={isApproving}
-          className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+          className="w-full rounded-xl py-3.5 text-sm font-semibold text-black transition disabled:opacity-50"
+          style={{
+            background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+            boxShadow: "0 2px 12px rgba(245, 158, 11, 0.3)",
+          }}
         >
-          {isApproving ? "Approving..." : "Approve Tokens"}
+          {isApproving ? "Approving…" : "Approve tokens"}
         </button>
       ) : (
         <button
+          type="button"
           onClick={handleMint}
           disabled={isPending || isConfirming || !amounts.weth}
-          className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+          className="w-full rounded-xl border border-[var(--border)] py-3.5 text-sm font-semibold text-[var(--text)] transition hover:bg-white/5 disabled:opacity-50"
+          style={{ background: "var(--bg-elevated)" }}
         >
-          {isPending || isConfirming ? "Processing..." : "Mint Index Tokens"}
+          {isPending || isConfirming ? "Processing…" : "Mint FCI"}
         </button>
       )}
 
       {isSuccess && (
-        <div className="p-3 bg-green-900/50 border border-green-600 rounded-lg text-green-400 text-sm">
-          ✓ Transaction confirmed!
+        <div
+          className="rounded-xl border p-3 text-sm font-medium text-emerald-400"
+          style={{ background: "var(--success-muted)", borderColor: "rgba(16, 185, 129, 0.3)" }}
+        >
+          ✓ Mint confirmed
         </div>
       )}
     </div>
@@ -191,7 +211,6 @@ function RedeemForm() {
     hash,
   });
 
-  // Get user's index token balance
   const { data: balance } = useReadContract({
     address: CONTRACTS.indexToken,
     abi: ERC20_ABI,
@@ -201,60 +220,60 @@ function RedeemForm() {
 
   const handleRedeem = () => {
     if (!amount) return;
-    const sharesIn = parseUnits(amount, 18);
-
     writeContract({
       address: CONTRACTS.indexVault,
       abi: INDEX_VAULT_ABI,
       functionName: "redeem",
-      args: [sharesIn],
+      args: [parseUnits(amount, 18)],
     });
-  };
-
-  const setMax = () => {
-    if (balance) {
-      setAmount(formatUnits(balance, 18));
-    }
   };
 
   return (
     <div className="space-y-4">
-      <p className="text-gray-400 text-sm">
-        Burn index tokens to receive underlying assets proportionally.
+      <p className="text-sm text-[var(--text-muted)]">
+        Burn FCI to receive underlying WETH, WBTC, and LINK proportionally.
       </p>
 
       <div>
-        <div className="flex justify-between text-sm mb-1">
-          <span className="text-gray-400">Amount to Redeem</span>
-          <button onClick={setMax} className="text-blue-400 hover:text-blue-300">
-            Max: {balance ? parseFloat(formatUnits(balance, 18)).toFixed(4) : "0"} FCI
+        <div className="mb-1.5 flex justify-between text-xs">
+          <span className="text-[var(--text-dim)]">FCI amount</span>
+          <button
+            type="button"
+            onClick={() => balance && setAmount(formatUnits(balance, 18))}
+            className="font-medium text-[var(--accent)] hover:underline"
+          >
+            Max {balance ? parseFloat(formatUnits(balance, 18)).toFixed(4) : "0"}
           </button>
         </div>
-        <div className="flex">
+        <div className="flex overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)", background: "var(--bg-input)" }}>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.0"
-            className="flex-1 bg-gray-700 rounded-l-lg px-4 py-3 outline-none focus:ring-2 focus:ring-red-500"
+            placeholder="0"
+            className="min-w-0 flex-1 border-0 bg-transparent px-4 py-3 text-[var(--text)] placeholder:text-[var(--text-dim)] focus:ring-2 focus:ring-[var(--accent)]"
           />
-          <span className="bg-gray-600 px-4 py-3 rounded-r-lg text-gray-400">
+          <span className="flex items-center px-4 py-3 text-sm font-medium text-[var(--text-muted)]">
             FCI
           </span>
         </div>
       </div>
 
       <button
+        type="button"
         onClick={handleRedeem}
         disabled={isPending || isConfirming || !amount}
-        className="w-full py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+        className="w-full rounded-xl border border-red-500/30 bg-red-500/10 py-3.5 text-sm font-semibold text-red-400 transition hover:bg-red-500/20 disabled:opacity-50"
       >
-        {isPending || isConfirming ? "Processing..." : "Redeem"}
+        {isPending || isConfirming ? "Processing…" : "Redeem"}
       </button>
 
       {isSuccess && (
-        <div className="p-3 bg-green-900/50 border border-green-600 rounded-lg text-green-400 text-sm">
-          ✓ Redemption successful! Tokens sent to your wallet.
+        <div
+          className="rounded-xl border p-3 text-sm font-medium text-emerald-400"
+          style={{ background: "var(--success-muted)", borderColor: "rgba(16, 185, 129, 0.3)" }}
+        >
+          ✓ Redemption complete. Tokens sent to your wallet.
         </div>
       )}
     </div>
@@ -265,24 +284,23 @@ function TokenInput({
   label,
   value,
   onChange,
-  decimals,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  decimals: number;
+  decimals?: number;
 }) {
   return (
-    <div className="flex">
-      <span className="bg-gray-600 px-4 py-3 rounded-l-lg text-gray-400 w-20">
+    <div className="flex overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)", background: "var(--bg-input)" }}>
+      <span className="flex w-16 shrink-0 items-center justify-center border-r text-sm font-medium text-[var(--text-muted)]" style={{ borderColor: "var(--border)" }}>
         {label}
       </span>
       <input
         type="number"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="0.0"
-        className="flex-1 bg-gray-700 rounded-r-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="0"
+        className="min-w-0 flex-1 border-0 bg-transparent px-4 py-3 text-[var(--text)] placeholder:text-[var(--text-dim)] focus:ring-2 focus:ring-[var(--accent)]"
       />
     </div>
   );

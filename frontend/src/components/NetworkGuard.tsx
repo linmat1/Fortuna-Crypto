@@ -7,32 +7,45 @@ export function NetworkGuard({ children }: { children: React.ReactNode }) {
   const { isConnected, chainId } = useAccount();
   const { switchChain, isPending } = useSwitchChain();
 
-  // Only show wrong network if we're connected AND have a chainId AND it's wrong
-  const isWrongNetwork = isConnected && chainId !== undefined && chainId !== baseSepolia.id;
+  const isWrongNetwork =
+    isConnected &&
+    chainId !== undefined &&
+    chainId !== baseSepolia.id;
 
   if (isWrongNetwork) {
     return (
-      <div className="bg-red-900/50 border border-red-600 rounded-xl p-8 text-center">
-        <div className="text-4xl mb-4">⚠️</div>
-        <h2 className="text-xl font-bold text-red-400 mb-2">Wrong Network</h2>
-        <p className="text-gray-400 mb-4">
-          Please switch to <strong>Base Sepolia</strong> to use this app.
-          <br />
-          <span className="text-sm">
-            Current chain ID: {chainId} | Required: {baseSepolia.id}
-          </span>
+      <div
+        className="rounded-2xl border p-8 text-center md:p-12"
+        style={{
+          background: "var(--danger-muted)",
+          borderColor: "rgba(239, 68, 68, 0.3)",
+          boxShadow: "var(--shadow)",
+        }}
+      >
+        <div className="mb-4 text-4xl">⚠️</div>
+        <h2
+          className="mb-2 text-xl font-semibold text-red-400"
+          style={{ fontFamily: "var(--font-syne)" }}
+        >
+          Wrong network
+        </h2>
+        <p className="mb-6 max-w-sm mx-auto text-sm leading-relaxed text-[var(--text-muted)]">
+          Switch to <strong className="text-[var(--text)]">Base Sepolia</strong> to
+          use this app. Current: {chainId} · Required: {baseSepolia.id}
         </p>
         <button
           onClick={() => switchChain({ chainId: baseSepolia.id })}
           disabled={isPending}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+          className="rounded-xl px-6 py-3 text-sm font-semibold text-black transition disabled:opacity-50"
+          style={{
+            background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+            boxShadow: "0 2px 12px rgba(245, 158, 11, 0.3)",
+          }}
         >
-          {isPending ? "Switching..." : "Switch to Base Sepolia"}
+          {isPending ? "Switching…" : "Switch to Base Sepolia"}
         </button>
-        <p className="text-xs text-gray-500 mt-4">
-          If the switch doesn&apos;t work, manually add Base Sepolia:
-          <br />
-          RPC: https://sepolia.base.org | Chain ID: 84532
+        <p className="mt-6 text-xs text-[var(--text-dim)]">
+          If the switch fails, add Base Sepolia manually: RPC https://sepolia.base.org · Chain ID 84532
         </p>
       </div>
     );
